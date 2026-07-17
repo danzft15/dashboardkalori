@@ -6,6 +6,7 @@ import Charts from './components/Charts';
 import EmployeeTable from './components/EmployeeTable';
 import AddEmployeeModal from './components/AddEmployeeModal';
 import Instructions from './components/Instructions';
+import donorKaloriLogo from './assets/images/donor_kalori_logo_1784286541228.jpg';
 import { 
   Users, 
   CheckCircle, 
@@ -321,8 +322,13 @@ export default function App() {
           
           {/* Logo & Title */}
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-600/10 hover:shadow-emerald-600/20 transition-all duration-300">
-              <Flame className="w-6 h-6 animate-pulse" />
+            <div className="w-12 h-12 bg-white rounded-2xl overflow-hidden flex items-center justify-center shadow-md border border-slate-100 hover:shadow-lg transition-all duration-300 animate-pulse">
+              <img 
+                src={donorKaloriLogo} 
+                alt="Donor Kalori Logo" 
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
             </div>
             <div>
               <h1 className="text-xl font-extrabold text-slate-950 tracking-tight flex items-center gap-2">
