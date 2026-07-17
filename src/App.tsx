@@ -326,10 +326,10 @@ export default function App() {
             </div>
             <div>
               <h1 className="text-xl font-extrabold text-slate-950 tracking-tight flex items-center gap-2">
-                Employee Calorie Dashboard
+                Dashboard Donor Kalori 2026 Enseval Bekasi
               </h1>
-              <p className="text-xs text-slate-500 font-medium">
-                Sistem Pemantauan Energi, Kalori, dan Aktivasi Akun Karyawan
+              <p className="text-xs font-bold text-emerald-600 tracking-wider">
+                BURN FOR GOOD !
               </p>
             </div>
           </div>
