@@ -1,0 +1,33 @@
+import { Employee } from '../types';
+
+export const SAMPLE_EMPLOYEES: Employee[] = [
+  { nik: '10800789', name: 'EKO KURNIAWAN', direktorat: 'EPM - ABM & STAFF', status: 'Activated', kalori: 4437 },
+  { nik: '250300358', name: 'LUSYANA PHEREN', direktorat: 'EPM - ABM & STAFF', status: 'Activated', kalori: 4154 },
+  { nik: '100200176', name: 'JATU DRIANINGTYAS, S.SI.APT.', direktorat: 'EPM - ABM & STAFF', status: 'Activated', kalori: 133 },
+  { nik: '160500237', name: 'NOVIYANA RIAUWATI', direktorat: 'EPM - ABM & STAFF', status: 'Activated', kalori: 563 },
+  { nik: '211101182', name: 'ANDRI SOFIYANTO', direktorat: 'EPM - ABM & STAFF', status: 'Activated', kalori: 67 },
+  { nik: '30300329', name: 'YUDISTIRO WAHYU WIBOWO', direktorat: 'EPM - ABM & STAFF', status: 'Not Activated', kalori: 0 },
+  { nik: '90500356', name: 'RIVAN LIYANDO', direktorat: 'EPM - ACCOUNTING', status: 'Activated', kalori: 3553 },
+  { nik: '180200152', name: 'ZAENAL MUTTAQIEN', direktorat: 'EPM - ACCOUNTING', status: 'Activated', kalori: 1907 },
+  { nik: '120801324', name: 'WIDYA YUNI ASTUTI', direktorat: 'EPM - ACCOUNTING', status: 'Activated', kalori: 427 },
+  { nik: '951000151', name: 'LIANIH', direktorat: 'EPM - ACCOUNTING', status: 'Activated', kalori: 107 },
+  { nik: '160100010', name: 'ANDREAS DEWANTORO', direktorat: 'EPM - ACCOUNTING', status: 'Activated', kalori: 158 },
+  { nik: '130602114', name: 'MOHAMMAD KHADAFY', direktorat: 'EPM - ACCOUNTING', status: 'Activated', kalori: 0 },
+  { nik: '220100066', name: 'RENDY ARDIANSYAH', direktorat: 'EPM - ACCOUNTING', status: 'Activated', kalori: 0 },
+  { nik: '131002712', name: 'RIRIN AFRIYANI', direktorat: 'EPM - ACCOUNTING', status: 'Activated', kalori: 162 },
+  { nik: '260100071', name: 'DIMAS RESPATI ARGESWARA', direktorat: 'EPM - CFD', status: 'Activated', kalori: 791 },
+  { nik: '260100089', name: 'INONG NOVIA PUTRI', direktorat: 'EPM - CFD (OUTSOURCING)', status: 'Activated', kalori: 94 },
+  { nik: '260100092', name: 'SYATRIYA WANI', direktorat: 'EPM - CFD (OUTSOURCING)', status: 'Activated', kalori: 0 },
+  { nik: '260400683', name: 'TEDI GUNAWAN', direktorat: 'EPM - CFD (OUTSOURCING)', status: 'Activated', kalori: 1449 },
+  { nik: '190900892', name: 'DEWI RETNO ANGGRAINI', direktorat: 'EPM - CHB 1', status: 'Activated', kalori: 162 },
+  { nik: '60500341', name: 'INDRA ARDIANSYAH', direktorat: 'EPM - CHB 1', status: 'Activated', kalori: 500 },
+  { nik: '190800784', name: 'MUHAMMAD RIDHO AZHAR', direktorat: 'EPM - CHB 1', status: 'Activated', kalori: 17 },
+  { nik: '240200159', name: 'WURI ADITYO ATMAJI', direktorat: 'EPM - CHB 1', status: 'Activated', kalori: 0 },
+  { nik: '130401358', name: 'SOPYAN AZIS', direktorat: 'EPM - CHB 1', status: 'Not Activated', kalori: 0 },
+  { nik: '260200747', name: 'HALVIANTO PUTRA PRAMONO', direktorat: 'EPM - CHB 7 (OUTSOURCING)', status: 'Activated', kalori: 32 },
+  { nik: '251201991', name: 'MARINAH', direktorat: 'EPM - CHB 7 (OUTSOURCING)', status: 'Activated', kalori: 0 },
+  { nik: '260200387', name: 'TRISNO SAPUTRA', direktorat: 'EPM - CHB (OUTSOURCING)', status: 'Activated', kalori: 1194 },
+  { nik: '131002769', name: 'GILANG KALAMPAYAN', direktorat: 'EPM - CHD', status: 'Activated', kalori: 4352 },
+  { nik: '250600896', name: 'AKBAR ISMAIL HANUGROHO', direktorat: 'EPM - CHD', status: 'Activated', kalori: 2337 },
+  { nik: '20901625', name: 'HASAN WIYATNO', direktorat: 'EPM - CHD', status: 'Activated', kalori: 1829 }
+];

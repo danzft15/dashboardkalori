@@ -1,0 +1,6 @@
+{
+  "name": "Employee Calorie Dashboard",
+  "description": "Dashboard interaktif untuk memonitor data karyawan, status aktivasi, dan jumlah total kalori dengan integrasi Google Sheets melalui Google Apps Script.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
