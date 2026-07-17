@@ -20,7 +20,10 @@ import {
   FileSpreadsheet,
   Settings,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Clock,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 export default function App() {
@@ -38,12 +41,52 @@ export default function App() {
     error: null
   });
 
+  // Config Visibility State
+  const [showSourceConfig, setShowSourceConfig] = useState(() => {
+    return localStorage.getItem('show_source_config') !== 'false';
+  });
+
+  // Auto Refresh States
+  const [isAutoRefresh, setIsAutoRefresh] = useState(() => {
+    return localStorage.getItem('auto_refresh_enabled') === 'true';
+  });
+  const [refreshInterval, setRefreshInterval] = useState(() => {
+    const saved = localStorage.getItem('auto_refresh_interval');
+    return saved ? Number(saved) : 30000;
+  });
+
   // UI States
   const [selectedDirektorat, setSelectedDirektorat] = useState<string | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<'Activated' | 'Not Activated' | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+
+  // Persistent Auto Refresh state changes
+  useEffect(() => {
+    localStorage.setItem('auto_refresh_enabled', String(isAutoRefresh));
+  }, [isAutoRefresh]);
+
+  useEffect(() => {
+    localStorage.setItem('auto_refresh_interval', String(refreshInterval));
+  }, [refreshInterval]);
+
+  useEffect(() => {
+    localStorage.setItem('show_source_config', String(showSourceConfig));
+  }, [showSourceConfig]);
+
+  // Auto Refresh Interval hook
+  useEffect(() => {
+    if (!isAutoRefresh || !connection.isConnected || !connection.url) return;
+
+    const intervalId = setInterval(() => {
+      if (!connection.isLoading) {
+        fetchLiveEmployees(connection.url, true); // true for silent update
+      }
+    }, refreshInterval);
+
+    return () => clearInterval(intervalId);
+  }, [isAutoRefresh, connection.isConnected, connection.url, refreshInterval]);
 
   // Load initial settings and data on mount
   useEffect(() => {
@@ -75,11 +118,13 @@ export default function App() {
   };
 
   // FETCH Data from Google Sheet Apps Script
-  const fetchLiveEmployees = async (urlToFetch: string) => {
+  const fetchLiveEmployees = async (urlToFetch: string, isSilent = false) => {
     if (!urlToFetch) return;
     
     setConnection(prev => ({ ...prev, isLoading: true, error: null }));
-    showToast('info', 'Sedang mengambil data dari Google Sheet...');
+    if (!isSilent) {
+      showToast('info', 'Sedang mengambil data dari Google Sheet...');
+    }
 
     try {
       // We append a timestamp to bypass any aggressive cache
@@ -105,7 +150,9 @@ export default function App() {
           isLoading: false,
           error: null
         });
-        showToast('success', `Berhasil memuat ${result.data.length} karyawan dari Google Sheet!`);
+        if (!isSilent) {
+          showToast('success', `Berhasil memuat ${result.data.length} karyawan dari Google Sheet!`);
+        }
       } else {
         throw new Error(result?.message || 'Format JSON dari Google Apps Script tidak valid. Harap pastikan script mengembalikan array data.');
       }
@@ -287,7 +334,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Connection Status Badge */}
+          {/* Connection Status Badge & Toggle Settings */}
           <div className="flex items-center gap-2.5">
             {isCustomSource ? (
               <div className="flex items-center gap-2 bg-emerald-50 text-emerald-800 px-3.5 py-1.5 rounded-full border border-emerald-100 text-xs font-semibold shadow-sm">
@@ -300,6 +347,28 @@ export default function App() {
                 <span>Mode Offline (Data Contoh)</span>
               </div>
             )}
+
+            <button
+              onClick={() => setShowSourceConfig(!showSourceConfig)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer shadow-sm ${
+                showSourceConfig 
+                  ? 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-slate-200 hover:text-slate-800' 
+                  : 'bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700 shadow-md shadow-emerald-600/10'
+              }`}
+              title={showSourceConfig ? 'Sembunyikan Pengaturan Google Sheet' : 'Tampilkan Pengaturan Google Sheet'}
+            >
+              {showSourceConfig ? (
+                <>
+                  <EyeOff className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Sembunyikan Panel</span>
+                </>
+              ) : (
+                <>
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Sumber Data</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
       </header>
@@ -308,91 +377,152 @@ export default function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-8">
         
         {/* Google Sheet Connection Manager Card */}
-        <section className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 overflow-hidden transition-all duration-300">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            
-            {/* Info and Status */}
-            <div className="space-y-1.5 max-w-xl">
-              <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-                Sumber Data Google Sheet (via Google Apps Script)
-              </h2>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Ambil data karyawan secara real-time dari spreadsheet Anda sendiri! Pastikan Anda sudah membuat Web App Google Apps Script dari panduan di bagian bawah halaman ini.
-              </p>
-              {connection.lastFetched && (
-                <p className="text-[10px] text-emerald-600 font-mono font-medium">
-                  ✓ Terakhir diperbarui: {connection.lastFetched} WIB
-                </p>
-              )}
-            </div>
-
-            {/* Input Form & Controls */}
-            <div className="flex-1 max-w-2xl w-full">
-              <form onSubmit={handleConnect} className="flex flex-col sm:flex-row gap-2.5">
-                <div className="relative flex-1">
-                  <Link2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="url"
-                    value={sheetUrl}
-                    onChange={(e) => setSheetUrl(e.target.value)}
-                    placeholder="Masukkan URL Web App Apps Script Anda..."
-                    className="w-full pl-10 pr-4 py-2.5 border border-slate-200 focus:border-emerald-500 focus:outline-none rounded-2xl text-xs text-slate-700 bg-slate-50/50 transition-all font-mono"
-                  />
-                </div>
-                
-                <div className="flex gap-2">
-                  {connection.isConnected ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => fetchLiveEmployees(sheetUrl)}
-                        disabled={connection.isLoading}
-                        className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl transition-colors cursor-pointer"
-                        title="Perbarui Data"
-                      >
-                        <RefreshCw className={`w-4 h-4 ${connection.isLoading ? 'animate-spin' : ''}`} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleDisconnect}
-                        className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-2xl text-xs font-bold border border-rose-100 transition-colors cursor-pointer flex-1 sm:flex-initial text-center"
-                      >
-                        Putuskan
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      type="submit"
-                      disabled={connection.isLoading}
-                      className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-500 text-white rounded-2xl text-xs font-bold shadow-md shadow-emerald-600/10 hover:shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer flex-1 sm:flex-initial"
-                    >
-                      {connection.isLoading ? (
-                        <>
-                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                          <span>Menghubungkan...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Link2 className="w-3.5 h-3.5" />
-                          <span>Hubungkan</span>
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
-              </form>
+        {showSourceConfig && (
+          <section className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 overflow-hidden transition-all duration-300">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               
-              {connection.error && (
-                <p className="text-[11px] text-rose-600 mt-2 flex items-start gap-1 font-medium bg-rose-50 p-2.5 rounded-xl border border-rose-100 leading-normal">
-                  <AlertCircle className="w-3.5 h-3.5 flex-none mt-0.5" />
-                  <span>{connection.error}</span>
+              {/* Info and Status */}
+              <div className="space-y-1.5 max-w-xl">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                    Sumber Data Google Sheet (via Google Apps Script)
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => setShowSourceConfig(false)}
+                    className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded-full transition-colors cursor-pointer"
+                    title="Sembunyikan Panel"
+                  >
+                    <EyeOff className="w-3 h-3" />
+                    <span>Sembunyikan</span>
+                  </button>
+                </div>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Ambil data karyawan secara real-time dari spreadsheet Anda sendiri! Pastikan Anda sudah membuat Web App Google Apps Script dari panduan di bagian bawah halaman ini.
                 </p>
-              )}
-            </div>
+                {connection.lastFetched && (
+                  <p className="text-[10px] text-emerald-600 font-mono font-medium">
+                    ✓ Terakhir diperbarui: {connection.lastFetched} WIB
+                  </p>
+                )}
+              </div>
 
-          </div>
-        </section>
+              {/* Input Form & Controls */}
+              <div className="flex-1 max-w-2xl w-full">
+                <form onSubmit={handleConnect} className="flex flex-col sm:flex-row gap-2.5">
+                  <div className="relative flex-1">
+                    <Link2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="url"
+                      value={sheetUrl}
+                      onChange={(e) => setSheetUrl(e.target.value)}
+                      placeholder="Masukkan URL Web App Apps Script Anda..."
+                      className="w-full pl-10 pr-4 py-2.5 border border-slate-200 focus:border-emerald-500 focus:outline-none rounded-2xl text-xs text-slate-700 bg-slate-50/50 transition-all font-mono"
+                    />
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    {connection.isConnected ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => fetchLiveEmployees(sheetUrl)}
+                          disabled={connection.isLoading}
+                          className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl transition-colors cursor-pointer"
+                          title="Perbarui Data"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${connection.isLoading ? 'animate-spin' : ''}`} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleDisconnect}
+                          className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-2xl text-xs font-bold border border-rose-100 transition-colors cursor-pointer flex-1 sm:flex-initial text-center"
+                        >
+                          Putuskan
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        type="submit"
+                        disabled={connection.isLoading}
+                        className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-500 text-white rounded-2xl text-xs font-bold shadow-md shadow-emerald-600/10 hover:shadow-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer flex-1 sm:flex-initial"
+                      >
+                        {connection.isLoading ? (
+                          <>
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                            <span>Menghubungkan...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Link2 className="w-3.5 h-3.5" />
+                            <span>Hubungkan</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </form>
+                
+                {connection.error && (
+                  <p className="text-[11px] text-rose-600 mt-2 flex items-start gap-1 font-medium bg-rose-50 p-2.5 rounded-xl border border-rose-100 leading-normal">
+                    <AlertCircle className="w-3.5 h-3.5 flex-none mt-0.5" />
+                    <span>{connection.error}</span>
+                  </p>
+                )}
+
+                {connection.isConnected && (
+                  <div className="mt-3.5 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsAutoRefresh(!isAutoRefresh)}
+                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                          isAutoRefresh ? 'bg-emerald-600' : 'bg-slate-200'
+                        }`}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                            isAutoRefresh ? 'translate-x-4' : 'translate-x-0'
+                          }`}
+                        />
+                      </button>
+                      <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+                        Auto Refresh {isAutoRefresh ? 'Aktif' : 'Nonaktif'}
+                        {isAutoRefresh && (
+                          <span className="flex h-1.5 w-1.5 relative">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                          </span>
+                        )}
+                      </span>
+                    </div>
+
+                    {isAutoRefresh && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-400 flex items-center gap-1 font-medium">
+                          <Clock className="w-3.5 h-3.5" />
+                          Interval:
+                        </span>
+                        <select
+                          value={refreshInterval}
+                          onChange={(e) => setRefreshInterval(Number(e.target.value))}
+                          className="bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 text-[11px] font-semibold py-1 px-2.5 rounded-xl focus:outline-none focus:border-emerald-500 transition-colors"
+                        >
+                          <option value={10000}>10 Detik</option>
+                          <option value={30000}>30 Detik</option>
+                          <option value={60000}>1 Menit</option>
+                          <option value={300000}>5 Menit</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </section>
+        )}
 
         {/* TOP LEVEL METRIC CARDS */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
