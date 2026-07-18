@@ -487,9 +487,12 @@ export default function App() {
         </div>
 
         {/* Footer / Copyright info */}
-        <p className="text-[10px] text-slate-400/80 mt-6 font-medium text-center leading-relaxed">
-          © 2026 PT Enseval Putera Megatrading Tbk - Cabang Bekasi.<br />
-          Sistem Pendonor Energi & Kalori Terintegrasi.
+        <p className="text-[10px] text-slate-400/80 mt-6 font-medium text-center leading-relaxed flex flex-col items-center gap-1.5">
+          <span>© 2026 PT Enseval Putera Megatrading Tbk - Cabang Bekasi.</span>
+          <span className="text-[10px] font-bold text-emerald-300 bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-500/20 shadow-sm inline-flex items-center gap-1">
+            Created by : ©Jordan Nur Akbar
+          </span>
+          <span>Sistem Pendonor Energi & Kalori Terintegrasi.</span>
         </p>
       </div>
     );
@@ -836,9 +839,12 @@ export default function App() {
       </main>
 
       {/* FOOTER */}
-      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 text-center text-slate-400 text-xs border-t border-slate-100 pt-8">
-        <p>© 2026 Employee Calorie Dashboard. Semua data disimpan secara aman dalam sistem integrasi Anda.</p>
-        <p className="mt-1">Dibuat menggunakan teknologi web modern dengan koneksi langsung Google Apps Script API.</p>
+      <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 text-center text-slate-400 text-xs border-t border-slate-100 pt-8 flex flex-col items-center gap-2">
+        <p>© 2026 PT Enseval Putera Megatrading Tbk - Cabang Bekasi.</p>
+        <p className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 shadow-sm inline-flex items-center gap-1">
+          Created by : ©Jordan Nur Akbar
+        </p>
+        <p className="text-[11px] text-slate-400">Sistem Pendonor Energi & Kalori Terintegrasi • Koneksi Google Apps Script API.</p>
       </footer>
 
       {/* POPUP MODAL FOR ADDING EMPLOYEE */}
