@@ -25,10 +25,24 @@ import {
   Clock,
   Eye,
   EyeOff,
-  Trophy
+  Trophy,
+  Lock,
+  User,
+  LogOut,
+  Heart
 } from 'lucide-react';
 
 export default function App() {
+  // Authentication States
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('donor_kalori_logged_in') === 'true';
+  });
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
+
   // Main Data States
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isCustomSource, setIsCustomSource] = useState(false);
@@ -117,6 +131,49 @@ export default function App() {
     setTimeout(() => {
       setNotification(null);
     }, 4500);
+  };
+
+  // Authentication Handlers
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoginLoading(true);
+    setLoginError(null);
+
+    setTimeout(() => {
+      const email = loginEmail.trim().toLowerCase();
+      const password = loginPassword;
+
+      if (email === 'admin@enseval.com' && password === 'burnforgood2026') {
+        setIsLoggedIn(true);
+        localStorage.setItem('donor_kalori_logged_in', 'true');
+        showToast('success', 'Selamat datang kembali! Login berhasil.');
+      } else {
+        setLoginError('Alamat email atau kata sandi salah. Silakan periksa kembali kredensial Anda.');
+      }
+      setIsLoginLoading(false);
+    }, 800);
+  };
+
+  const handleQuickLogin = () => {
+    setIsLoginLoading(true);
+    setLoginError(null);
+    setLoginEmail('admin@enseval.com');
+    setLoginPassword('burnforgood2026');
+
+    setTimeout(() => {
+      setIsLoggedIn(true);
+      localStorage.setItem('donor_kalori_logged_in', 'true');
+      showToast('success', 'Selamat datang! Login demo berhasil.');
+      setIsLoginLoading(false);
+    }, 600);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem('donor_kalori_logged_in');
+    setLoginEmail('');
+    setLoginPassword('');
+    showToast('info', 'Anda telah berhasil keluar dari sistem.');
   };
 
   // FETCH Data from Google Sheet Apps Script
@@ -304,6 +361,140 @@ export default function App() {
     return Array.from(new Set(employees.map(e => e.direktorat))).filter(Boolean);
   }, [employees]);
 
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-gradient-to-tr from-slate-900 via-slate-800 to-emerald-950 flex flex-col justify-center items-center p-4 relative overflow-hidden selection:bg-emerald-500 selection:text-white font-sans">
+        {/* Toast Notification Banner */}
+        {notification && (
+          <div className="fixed top-5 right-5 z-50 flex items-center gap-3 px-5 py-3.5 bg-slate-950 text-white rounded-2xl shadow-2xl border border-slate-800 text-xs font-semibold animate-bounce">
+            {notification.type === 'success' && <Check className="w-4 h-4 text-emerald-400 flex-none" />}
+            {notification.type === 'error' && <AlertCircle className="w-4 h-4 text-rose-400 flex-none" />}
+            {notification.type === 'info' && <Database className="w-4 h-4 text-sky-400 flex-none" />}
+            <span className="leading-tight">{notification.message}</span>
+          </div>
+        )}
+
+        {/* Glowing background shapes for depth */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl -z-10 animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-teal-500/10 blur-3xl -z-10 animate-pulse" style={{ animationDelay: '2s' }} />
+
+        {/* Login Container */}
+        <div className="w-full max-w-md bg-white/95 backdrop-blur-xl rounded-3xl border border-slate-100 shadow-2xl overflow-hidden p-8 space-y-6 transition-all duration-300">
+          
+          {/* Logo and Headings */}
+          <div className="text-center space-y-3">
+            <div className="mx-auto w-20 h-20 bg-white rounded-3xl overflow-hidden flex items-center justify-center shadow-lg border border-slate-100 p-0.5 group-hover:scale-105 transition-transform duration-300">
+              <img 
+                src={donorKaloriLogo} 
+                alt="Donor Kalori Logo" 
+                className="w-full h-full object-cover rounded-2xl"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+            <div className="space-y-1">
+              <h1 className="text-xl font-extrabold text-slate-950 tracking-tight">
+                Donor Kalori 2026
+              </h1>
+              <p className="text-xs font-semibold text-emerald-600 tracking-wider uppercase">
+                BURN FOR GOOD • ENSEVAL BEKASI
+              </p>
+            </div>
+            <div className="h-px bg-slate-100 w-24 mx-auto" />
+            <p className="text-[11px] text-slate-500 max-w-xs mx-auto leading-relaxed">
+              Silakan login untuk memantau data donor energi, kalori, dan aktivasi akun karyawan secara real-time.
+            </p>
+          </div>
+
+          {/* Login Form */}
+          <form onSubmit={handleLogin} className="space-y-4">
+            {loginError && (
+              <div className="bg-rose-50 border border-rose-100 text-rose-700 text-xs p-3.5 rounded-2xl flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span className="font-semibold leading-normal">{loginError}</span>
+              </div>
+            )}
+
+            {/* Email Field */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                Alamat Email / Username
+              </label>
+              <div className="relative">
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  required
+                  value={loginEmail}
+                  onChange={(e) => {
+                    setLoginEmail(e.target.value);
+                    if (loginError) setLoginError(null);
+                  }}
+                  placeholder="Masukkan email atau username..."
+                  className="w-full pl-10 pr-4 py-3 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 focus:outline-none rounded-2xl text-xs text-slate-800 bg-slate-50/50 transition-all font-medium"
+                />
+              </div>
+            </div>
+
+            {/* Password Field */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                Kata Sandi (Password)
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type={showLoginPassword ? "text" : "password"}
+                  required
+                  value={loginPassword}
+                  onChange={(e) => {
+                    setLoginPassword(e.target.value);
+                    if (loginError) setLoginError(null);
+                  }}
+                  placeholder="Masukkan kata sandi..."
+                  className="w-full pl-10 pr-11 py-3 border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 focus:outline-none rounded-2xl text-xs text-slate-800 bg-slate-50/50 transition-all font-medium"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPassword(!showLoginPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoginLoading}
+              className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-500 text-white rounded-2xl text-xs font-bold shadow-lg shadow-emerald-600/10 hover:shadow-emerald-600/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
+            >
+              {isLoginLoading ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Memverifikasi Akun...</span>
+                </>
+              ) : (
+                <>
+                  <span>Masuk ke Dashboard</span>
+                </>
+              )}
+            </button>
+          </form>
+
+
+
+        </div>
+
+        {/* Footer / Copyright info */}
+        <p className="text-[10px] text-slate-400/80 mt-6 font-medium text-center leading-relaxed">
+          © 2026 PT Enseval Putera Megatrading Tbk - Cabang Bekasi.<br />
+          Sistem Pendonor Energi & Kalori Terintegrasi.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-16 antialiased selection:bg-emerald-100 selection:text-emerald-950">
       
@@ -375,6 +566,15 @@ export default function App() {
                   <span>Sumber Data</span>
                 </>
               )}
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border border-rose-100 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 transition-all cursor-pointer shadow-sm"
+              title="Keluar dari Sistem"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Keluar</span>
             </button>
           </div>
         </div>
