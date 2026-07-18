@@ -24,7 +24,8 @@ import {
   ChevronUp,
   Clock,
   Eye,
-  EyeOff
+  EyeOff,
+  Trophy
 } from 'lucide-react';
 
 export default function App() {
@@ -531,7 +532,7 @@ export default function App() {
         )}
 
         {/* TOP LEVEL METRIC CARDS */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
           <MetricCard
             title="Total Karyawan"
             value={stats.totalEmployees}
@@ -562,10 +563,20 @@ export default function App() {
           <MetricCard
             title="Rata-rata Kalori"
             value={`${stats.avgCalories.toLocaleString('id-ID')} kcal`}
-            subValue={stats.maxCaloriesEmployee ? `Tertinggi: ${stats.maxCaloriesEmployee.name}` : undefined}
+            subValue="Rata-rata per karyawan"
             icon={<TrendingUp className="w-6 h-6" />}
             colorClass="text-rose-600"
             bgClass="bg-rose-50"
+          />
+
+          <MetricCard
+            title="Most Burn Calories!"
+            value={stats.maxCaloriesEmployee ? stats.maxCaloriesEmployee.name : '-'}
+            subValue={stats.maxCaloriesEmployee ? `${stats.maxCaloriesEmployee.kalori.toLocaleString('id-ID')} kcal • ${stats.maxCaloriesEmployee.direktorat}` : undefined}
+            icon={<Trophy className="w-6 h-6" />}
+            colorClass="text-amber-500"
+            bgClass="bg-amber-50"
+            isHighlighted={true}
           />
         </section>
 
